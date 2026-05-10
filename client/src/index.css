@@ -332,6 +332,20 @@ button {
   box-shadow: 0 0 12px rgba(0,212,255,0.15);
 }
 
+@media (max-width: 820px) {
+  .tab-bar {
+    width: 100%;
+    max-width: 100% !important;
+    overflow-x: auto;
+  }
+
+  .tab-btn {
+    min-width: 100px;
+    font-size: 0.82rem;
+    padding: 8px 12px;
+  }
+}
+
 /* ─── Input ─── */
 input, select {
   font-family: var(--font-ui);

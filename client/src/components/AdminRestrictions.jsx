@@ -340,6 +340,7 @@ export default function AdminRestrictions() {
           padding: 12px 16px;
           border-bottom: 1px solid rgba(0,212,255,0.1);
           font-size: 0.9rem;
+          vertical-align: middle;
         }
 
         .restrictions-table tr:hover {
@@ -358,6 +359,26 @@ export default function AdminRestrictions() {
 
         .action-cell {
           text-align: right;
+          width: 140px;
+          white-space: nowrap;
+        }
+
+        .action-header {
+          text-align: right !important;
+          width: 140px;
+        }
+
+        .reason-cell {
+          max-width: 320px;
+        }
+
+        .reason-text {
+          display: inline-block;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: var(--text-secondary, #b0b0b0);
         }
 
         .restrictions-empty {
@@ -494,14 +515,20 @@ export default function AdminRestrictions() {
                   <thead>
                     <tr>
                       <th>Username</th>
+                      <th>Reason</th>
                       <th>Added</th>
-                      <th>Action</th>
+                      <th className="action-header">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {restrictedUsers.map((user) => (
-                      <tr key={user.id}>
+                      <tr key={user.username}>
                         <td className="username-cell">{user.username}</td>
+                        <td className="reason-cell">
+                          <span className="reason-text" title={user.reason || 'No reason provided'}>
+                            {user.reason || 'No reason provided'}
+                          </span>
+                        </td>
                         <td className="date-cell">{new Date(user.created_at).toLocaleString()}</td>
                         <td className="action-cell">
                           <button

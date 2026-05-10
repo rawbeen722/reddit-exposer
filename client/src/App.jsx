@@ -642,6 +642,28 @@ export default function App() {
           .app-header { padding: 12px 16px; }
         }
 
+        @media (max-width: 820px) {
+          .app-header {
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: flex-start;
+          }
+
+          .header-brand {
+            width: 100%;
+          }
+
+          .header-search {
+            flex: 1 1 100%;
+            max-width: 100%;
+            width: 100%;
+          }
+
+          .dashboard {
+            padding: 16px 12px;
+          }
+        }
+
         /* Toast */
         .toast {
           position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);

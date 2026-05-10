@@ -215,6 +215,40 @@ export default function SearchBar({ onSearch, loading, initialValue = '' }) {
         .recent-time { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
         .recent-clear { background: transparent; border: none; color: var(--text-muted); font-size: 0.7rem; cursor: pointer; padding: 2px 4px; flex-shrink: 0; }
         .recent-clear:hover { color: var(--accent-red); }
+
+        @media (max-width: 820px) {
+          .search-form {
+            gap: 8px;
+          }
+
+          .search-btn {
+            padding: 12px 16px;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            border-radius: 12px;
+          }
+
+          .search-input {
+            padding: 14px 14px 14px 46px;
+            font-size: 0.92rem;
+          }
+
+          .search-icon {
+            left: 14px;
+            font-size: 1.15rem;
+          }
+        }
+
+        @media (max-width: 560px) {
+          .search-form {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .search-btn {
+            width: 100%;
+          }
+        }
       `}</style>
         </div>
     );
