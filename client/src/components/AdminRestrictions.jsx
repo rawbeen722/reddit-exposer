@@ -8,13 +8,15 @@ const RESTRICTIONS_ENDPOINT = API_BASE.endsWith('/api')
 export default function AdminRestrictions() {
   const [token, setToken] = useState('');
   const [newUsername, setNewUsername] = useState('');
+  const [reason, setReason] = useState('');
+  const [limit, setLimit] = useState(500);
   const [restrictedUsers, setRestrictedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const fetchBlacklist = async (e, tokenOverride) => {
+  const fetchRestrictions = async (e, tokenOverride) => {
     e?.preventDefault?.();
     const tokenToUse = (tokenOverride ?? token).trim();
     if (!tokenToUse) {
@@ -27,7 +29,7 @@ export default function AdminRestrictions() {
     setSuccess(null);
 
     try {
-      const response = await fetch(`${BLACKLIST_ENDPOINT}?_=${Date.now()}`, {
+      const response = await fetch(`${RESTRICTIONS_ENDPOINT}?limit=${limit}&_=${Date.now()}`, {
         headers: {
           'x-access-token': tokenToUse,
           'cache-control': 'no-cache',
@@ -48,7 +50,7 @@ export default function AdminRestrictions() {
       }
 
       const data = await response.json();
-      setRestrictedUsers(data.blacklist || []);
+      setRestrictedUsers(data.users || data.blacklist || []);
       setIsAuthenticated(true);
     } catch (err) {
       setError(err.message);
@@ -85,7 +87,7 @@ export default function AdminRestrictions() {
           'Content-Type': 'application/json',
           'x-access-token': token,
         },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ username, reason }),
       });
 
       if (!response.ok) {
@@ -94,6 +96,7 @@ export default function AdminRestrictions() {
       }
 
       setNewUsername('');
+      setReason('');
       setSuccess(`Added "${username}" to restricted list`);
       await fetchRestrictions(null, token);
     } catch (err) {
@@ -111,13 +114,11 @@ export default function AdminRestrictions() {
     setSuccess(null);
 
     try {
-      const response = await fetch(RESTRICTIONS_ENDPOINT, {
+      const response = await fetch(`${RESTRICTIONS_ENDPOINT}/${encodeURIComponent(username)}`, {
         method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json',
           'x-access-token': token,
         },
-        body: JSON.stringify({ username }),
       });
 
       if (!response.ok) {
@@ -137,6 +138,8 @@ export default function AdminRestrictions() {
   const logout = () => {
     setToken('');
     setIsAuthenticated(false);
+    setReason('');
+    setLimit(500);
     setRestrictedUsers([]);
     setError(null);
     setSuccess(null);
@@ -446,11 +449,37 @@ export default function AdminRestrictions() {
                     onChange={(e) => setNewUsername(e.target.value)}
                     disabled={loading}
                   />
+                  <input
+                    type="text"
+                    placeholder="Reason (optional)"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    disabled={loading}
+                  />
                   <button type="submit" className="btn btn-primary" disabled={loading}>
                     {loading ? 'Adding...' : 'Add'}
                   </button>
                 </div>
               </form>
+            </div>
+
+            <div className="add-restriction-form" style={{ marginTop: -10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <label style={{ color: 'var(--text-secondary, #b0b0b0)', fontSize: '0.9rem' }}>Limit</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="1000"
+                  className="auth-input"
+                  style={{ maxWidth: 140 }}
+                  value={limit}
+                  onChange={(e) => setLimit(parseInt(e.target.value, 10) || 500)}
+                  disabled={loading}
+                />
+                <button className="btn btn-primary" onClick={fetchRestrictions} disabled={loading} type="button">
+                  {loading ? 'Loading...' : 'Refresh'}
+                </button>
+              </div>
             </div>
 
             {loading && <div className="restrictions-loading">⏳ Loading...</div>}

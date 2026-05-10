@@ -12,7 +12,6 @@ import FlairBadges from './components/FlairBadges';
 import InsightsSummary from './components/InsightsSummary';
 import LogsViewer from './components/LogsViewer';
 import AdminRestrictions from './components/AdminRestrictions';
-import AdminPanel from './components/AdminPanel';
 
 import {
   fetchUserProfile,
@@ -310,9 +309,6 @@ export default function App() {
 
       {/* Admin Restrictions View (hidden, only accessible via /admin route) */}
       {isAdminPage && <AdminRestrictions />}
-
-      {/* Admin View (hidden, only accessible via /admin route) */}
-      {isAdminPage && <AdminPanel />}
 
       {/* Search View */}
       {!isLogsPage && !isAdminPage && (
