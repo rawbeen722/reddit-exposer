@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 
 const API_BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/$/, '');
-const BLACKLIST_ENDPOINT = API_BASE.endsWith('/api')
+const RESTRICTIONS_ENDPOINT = API_BASE.endsWith('/api')
   ? `${API_BASE}/admin/blacklist`
   : `${API_BASE}/api/admin/blacklist`;
 
-export default function AdminBlacklist() {
+export default function AdminRestrictions() {
   const [token, setToken] = useState('');
   const [newUsername, setNewUsername] = useState('');
-  const [blacklistedUsers, setBlacklistedUsers] = useState([]);
+  const [restrictedUsers, setRestrictedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -48,11 +48,11 @@ export default function AdminBlacklist() {
       }
 
       const data = await response.json();
-      setBlacklistedUsers(data.blacklist || []);
+      setRestrictedUsers(data.blacklist || []);
       setIsAuthenticated(true);
     } catch (err) {
       setError(err.message);
-      setBlacklistedUsers([]);
+      setRestrictedUsers([]);
       if (tokenOverride) setIsAuthenticated(false);
     } finally {
       setLoading(false);
@@ -62,7 +62,7 @@ export default function AdminBlacklist() {
   const handleTokenSubmit = (e) => {
     e.preventDefault();
     if (token.trim()) {
-      fetchBlacklist(e, token);
+      fetchRestrictions(e, token);
     }
   };
 
@@ -79,7 +79,7 @@ export default function AdminBlacklist() {
     setSuccess(null);
 
     try {
-      const response = await fetch(BLACKLIST_ENDPOINT, {
+      const response = await fetch(RESTRICTIONS_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -94,8 +94,8 @@ export default function AdminBlacklist() {
       }
 
       setNewUsername('');
-      setSuccess(`Added "${username}" to blacklist`);
-      await fetchBlacklist(null, token);
+      setSuccess(`Added "${username}" to restricted list`);
+      await fetchRestrictions(null, token);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -104,14 +104,14 @@ export default function AdminBlacklist() {
   };
 
   const removeUser = async (username) => {
-    if (!confirm(`Remove "${username}" from blacklist?`)) return;
+    if (!confirm(`Remove "${username}" from restricted list?`)) return;
 
     setLoading(true);
     setError(null);
     setSuccess(null);
 
     try {
-      const response = await fetch(BLACKLIST_ENDPOINT, {
+      const response = await fetch(RESTRICTIONS_ENDPOINT, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -125,8 +125,8 @@ export default function AdminBlacklist() {
         throw new Error(data.error || `HTTP ${response.status}`);
       }
 
-      setSuccess(`Removed "${username}" from blacklist`);
-      await fetchBlacklist(null, token);
+      setSuccess(`Removed "${username}" from restricted list`);
+      await fetchRestrictions(null, token);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -137,15 +137,15 @@ export default function AdminBlacklist() {
   const logout = () => {
     setToken('');
     setIsAuthenticated(false);
-    setBlacklistedUsers([]);
+    setRestrictedUsers([]);
     setError(null);
     setSuccess(null);
   };
 
   return (
-    <div className="blacklist-container">
+    <div className="restrictions-container">
       <style>{`
-        .blacklist-container {
+        .restrictions-container {
           min-height: 100vh;
           background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
           padding: 40px 20px;
@@ -153,12 +153,12 @@ export default function AdminBlacklist() {
           color: var(--text-primary, #e0e0e0);
         }
 
-        .blacklist-page {
+        .restrictions-page {
           max-width: 1000px;
           margin: 0 auto;
         }
 
-        .blacklist-header {
+        .restrictions-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -167,14 +167,14 @@ export default function AdminBlacklist() {
           border-bottom: 1px solid rgba(0,212,255,0.2);
         }
 
-        .blacklist-title {
+        .restrictions-title {
           font-size: 2rem;
           font-weight: 700;
           letter-spacing: 2px;
           color: var(--accent-cyan, #00d4ff);
         }
 
-        .blacklist-auth {
+        .restrictions-auth {
           background: rgba(19,19,31,0.8);
           border: 1px solid rgba(0,212,255,0.3);
           border-radius: 12px;
@@ -270,7 +270,7 @@ export default function AdminBlacklist() {
           font-size: 0.9rem;
         }
 
-        .add-user-form {
+        .add-restriction-form {
           background: rgba(19,19,31,0.8);
           border: 1px solid rgba(0,212,255,0.3);
           border-radius: 12px;
@@ -279,7 +279,7 @@ export default function AdminBlacklist() {
           backdrop-filter: blur(16px);
         }
 
-        .add-user-form h2 {
+        .add-restriction-form h2 {
           margin-bottom: 16px;
           color: var(--accent-cyan, #00d4ff);
           font-size: 1.1rem;
@@ -308,7 +308,7 @@ export default function AdminBlacklist() {
           box-shadow: 0 0 0 3px rgba(0,212,255,0.15);
         }
 
-        .blacklist-table {
+        .restrictions-table {
           width: 100%;
           border-collapse: collapse;
           background: rgba(19,19,31,0.6);
@@ -318,12 +318,12 @@ export default function AdminBlacklist() {
           margin-bottom: 30px;
         }
 
-        .blacklist-table thead {
+        .restrictions-table thead {
           background: rgba(0,212,255,0.1);
           border-bottom: 2px solid rgba(0,212,255,0.3);
         }
 
-        .blacklist-table th {
+        .restrictions-table th {
           padding: 12px 16px;
           text-align: left;
           font-weight: 600;
@@ -333,13 +333,13 @@ export default function AdminBlacklist() {
           text-transform: uppercase;
         }
 
-        .blacklist-table td {
+        .restrictions-table td {
           padding: 12px 16px;
           border-bottom: 1px solid rgba(0,212,255,0.1);
           font-size: 0.9rem;
         }
 
-        .blacklist-table tr:hover {
+        .restrictions-table tr:hover {
           background: rgba(0,212,255,0.05);
         }
 
@@ -357,14 +357,14 @@ export default function AdminBlacklist() {
           text-align: right;
         }
 
-        .blacklist-empty {
+        .restrictions-empty {
           text-align: center;
           padding: 60px 20px;
           color: var(--text-muted, #666);
           font-size: 1.1rem;
         }
 
-        .blacklist-loading {
+        .restrictions-loading {
           text-align: center;
           padding: 40px 20px;
           font-size: 1rem;
@@ -378,12 +378,12 @@ export default function AdminBlacklist() {
         }
 
         @media (max-width: 768px) {
-          .blacklist-table {
+          .restrictions-table {
             font-size: 0.75rem;
           }
 
-          .blacklist-table th,
-          .blacklist-table td {
+          .restrictions-table th,
+          .restrictions-table td {
             padding: 8px;
           }
 
@@ -395,7 +395,7 @@ export default function AdminBlacklist() {
             flex-direction: column;
           }
 
-          .blacklist-header {
+          .restrictions-header {
             flex-direction: column;
             gap: 16px;
             align-items: flex-start;
@@ -403,14 +403,14 @@ export default function AdminBlacklist() {
         }
       `}</style>
 
-      <div className="blacklist-page">
-        <div className="blacklist-header">
-          <h1 className="blacklist-title">🚫 Blacklist Manager</h1>
+      <div className="restrictions-page">
+        <div className="restrictions-header">
+          <h1 className="restrictions-title">🛡 Admin Restrictions</h1>
           {isAuthenticated && <button className="btn btn-logout" onClick={logout}>Logout</button>}
         </div>
 
         {!isAuthenticated ? (
-          <div className="blacklist-auth">
+          <div className="restrictions-auth">
             <h2 style={{ marginBottom: 16, color: 'var(--accent-cyan, #00d4ff)' }}>Enter Access Token</h2>
             <form onSubmit={handleTokenSubmit} className="auth-form">
               <input
@@ -427,7 +427,7 @@ export default function AdminBlacklist() {
             </form>
             {error && <div className="error-message">{error}</div>}
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted, #999)', marginBottom: 0 }}>
-              Token is required to manage blacklist. Ask your administrator for the ACCESS_TOKEN.
+              Token is required to manage restrictions. Ask your administrator for the ACCESS_TOKEN.
             </p>
           </div>
         ) : (
@@ -435,8 +435,8 @@ export default function AdminBlacklist() {
             {error && <div className="error-message">{error}</div>}
             {success && <div className="success-message">{success}</div>}
 
-            <div className="add-user-form">
-              <h2>➕ Add User to Blacklist</h2>
+            <div className="add-restriction-form">
+              <h2>➕ Add User to Restrictions</h2>
               <form onSubmit={addUser}>
                 <div className="add-user-input">
                   <input
@@ -453,15 +453,15 @@ export default function AdminBlacklist() {
               </form>
             </div>
 
-            {loading && <div className="blacklist-loading">⏳ Loading...</div>}
+            {loading && <div className="restrictions-loading">⏳ Loading...</div>}
 
-            {!loading && blacklistedUsers.length === 0 && (
-              <div className="blacklist-empty">No blacklisted users. The blacklist is empty.</div>
+            {!loading && restrictedUsers.length === 0 && (
+              <div className="restrictions-empty">No restricted users. The restriction list is empty.</div>
             )}
 
-            {!loading && blacklistedUsers.length > 0 && (
+            {!loading && restrictedUsers.length > 0 && (
               <div style={{ overflowX: 'auto' }}>
-                <table className="blacklist-table">
+                <table className="restrictions-table">
                   <thead>
                     <tr>
                       <th>Username</th>
@@ -470,7 +470,7 @@ export default function AdminBlacklist() {
                     </tr>
                   </thead>
                   <tbody>
-                    {blacklistedUsers.map((user) => (
+                    {restrictedUsers.map((user) => (
                       <tr key={user.id}>
                         <td className="username-cell">{user.username}</td>
                         <td className="date-cell">{new Date(user.created_at).toLocaleString()}</td>

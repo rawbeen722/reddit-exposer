@@ -11,7 +11,7 @@ import UserInteractions from './components/UserInteractions';
 import FlairBadges from './components/FlairBadges';
 import InsightsSummary from './components/InsightsSummary';
 import LogsViewer from './components/LogsViewer';
-import AdminBlacklist from './components/AdminBlacklist';
+import AdminRestrictions from './components/AdminRestrictions';
 import AdminPanel from './components/AdminPanel';
 
 import {
@@ -69,7 +69,7 @@ export default function App() {
   });
 
   const [globalError, setGlobalError] = useState(null);
-  const [isBlacklisted, setIsBlacklisted] = useState(false);
+  const [isRestricted, setIsRestricted] = useState(false);
   const [toast, setToast] = useState(null);
   const abortRef = useRef(null);
   const initialLoadRef = useRef(false);
@@ -79,7 +79,7 @@ export default function App() {
     setActiveTab('Overview');
     setSubFilter('');
     setGlobalError(null);
-    setIsBlacklisted(false);
+    setIsRestricted(false);
     setStates({
       profile: { data: null, loading: false, error: null },
       posts: { data: [], loading: false, error: null, hasMore: false },
@@ -146,7 +146,7 @@ export default function App() {
         if (key === 'profile') {
           // Check if user is blacklisted
           if (msg.toLowerCase().includes('access denied') || err?.response?.status === 403) {
-            setIsBlacklisted(true);
+            setIsRestricted(true);
           }
           showToast(msg);
         }
@@ -308,8 +308,8 @@ export default function App() {
       {/* Logs View (hidden, only accessible via /logs route) */}
       {isLogsPage && <LogsViewer />}
 
-      {/* Admin Blacklist View (hidden, only accessible via /admin route) */}
-      {isAdminPage && <AdminBlacklist />}
+      {/* Admin Restrictions View (hidden, only accessible via /admin route) */}
+      {isAdminPage && <AdminRestrictions />}
 
       {/* Admin View (hidden, only accessible via /admin route) */}
       {isAdminPage && <AdminPanel />}
@@ -344,12 +344,12 @@ export default function App() {
       {/* Dashboard */}
       {isSearched && (
         <main className="dashboard">
-          {/* Blacklist Error Message */}
-          {isBlacklisted && (
-            <div className="blacklist-error-container">
-              <div className="blacklist-error-message">
-                <div className="blacklist-error-icon">⛔</div>
-                <div className="blacklist-error-content">
+          {/* Access Restricted Error Message */}
+          {isRestricted && (
+            <div className="restrictions-error-container">
+              <div className="restrictions-error-message">
+                <div className="restrictions-error-icon">⛔</div>
+                <div className="restrictions-error-content">
                   <h2>Access Restricted</h2>
                   <p>The system administrator has restricted access to this user's profile. You are not permitted to view details for <strong>u/{username}</strong>.</p>
                   <button className="btn-search-again" onClick={() => {
@@ -363,8 +363,8 @@ export default function App() {
             </div>
           )}
 
-          {/* Dashboard Content (shown only if not blacklisted) */}
-          {!isBlacklisted && (
+          {/* Dashboard Content (shown only if not restricted) */}
+          {!isRestricted && (
             <>
               {/* User header strip */}
               <div className="user-strip animate-fade-in">
@@ -548,8 +548,8 @@ export default function App() {
         /* Dashboard */
         .dashboard { padding: 24px 32px; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
 
-        /* Blacklist Error Message */
-        .blacklist-error-container {
+        /* Access Restricted Error Message */
+        .restrictions-error-container {
           display: flex;
           align-items: center;
           justify-content: center;
@@ -557,7 +557,7 @@ export default function App() {
           padding: 40px 20px;
         }
 
-        .blacklist-error-message {
+        .restrictions-error-message {
           background: linear-gradient(135deg, rgba(50,30,30,0.8) 0%, rgba(30,20,20,0.9) 100%);
           border: 2px solid var(--accent-red, #ff4444);
           border-radius: 16px;
@@ -568,18 +568,18 @@ export default function App() {
           box-shadow: 0 8px 32px rgba(255, 68, 68, 0.15);
         }
 
-        .blacklist-error-icon {
+        .restrictions-error-icon {
           font-size: 3rem;
           margin-bottom: 16px;
-          animation: pulse-red 2s infinite;
+          animation: pulse-restricted 2s infinite;
         }
 
-        @keyframes pulse-red {
+        @keyframes pulse-restricted {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.6; }
         }
 
-        .blacklist-error-content h2 {
+        .restrictions-error-content h2 {
           font-size: 1.8rem;
           font-weight: 700;
           color: var(--accent-red, #ff6b6b);
@@ -587,14 +587,14 @@ export default function App() {
           letter-spacing: 1px;
         }
 
-        .blacklist-error-content p {
+        .restrictions-error-content p {
           font-size: 1rem;
           color: var(--text-secondary, #b0b0b0);
           line-height: 1.6;
           margin-bottom: 24px;
         }
 
-        .blacklist-error-content strong {
+        .restrictions-error-content strong {
           color: var(--accent-cyan, #00d4ff);
           font-weight: 600;
         }
