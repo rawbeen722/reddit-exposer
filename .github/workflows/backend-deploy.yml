@@ -1,0 +1,17 @@
+name: Trigger Render Deploy (Backend)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  trigger-render-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy webhook
+        run: |
+          if [ -z "${{ secrets.RENDER_SERVICE_WEBHOOK }}" ]; then
+            echo "RENDER_SERVICE_WEBHOOK secret is not set";
+            exit 1;
+          fi
+          curl -s -X POST "${{ secrets.RENDER_SERVICE_WEBHOOK }}" || exit 1
