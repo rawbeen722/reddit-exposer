@@ -268,6 +268,39 @@ export default function LogsViewer() {
           white-space: nowrap;
         }
 
+        .user-agent-cell {
+          max-width: 150px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          position: relative;
+        }
+
+        .user-agent-cell-tooltip {
+          position: relative;
+          cursor: help;
+        }
+
+        .user-agent-cell-tooltip:hover::after {
+          content: attr(data-tooltip);
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 0, 0, 0.9);
+          color: #fff;
+          padding: 8px 12px;
+          border-radius: 6px;
+          font-size: 0.75rem;
+          white-space: normal;
+          width: 300px;
+          z-index: 1000;
+          margin-bottom: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+          word-wrap: break-word;
+          line-height: 1.4;
+        }
+
         .btn-logout {
           background: rgba(100,100,100,0.6);
           color: #fff;
@@ -372,7 +405,11 @@ export default function LogsViewer() {
                         <td>{log.method}</td>
                         <td className={`log-status-${log.status_code}`}>{log.status_code}</td>
                         <td>{log.requester_ip}</td>
-                        <td style={{ maxWidth: 320, wordBreak: 'break-word' }}>{log.user_agent || '—'}</td>
+                        <td>
+                          <div className="user-agent-cell" title={log.user_agent || '—'}>
+                            {log.user_agent || '—'}
+                          </div>
+                        </td>
                         <td>{log.response_time_ms}</td>
                       </tr>
                     ))}

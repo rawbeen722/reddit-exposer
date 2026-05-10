@@ -11,6 +11,7 @@ import UserInteractions from './components/UserInteractions';
 import FlairBadges from './components/FlairBadges';
 import InsightsSummary from './components/InsightsSummary';
 import LogsViewer from './components/LogsViewer';
+import AdminBlacklist from './components/AdminBlacklist';
 import AdminPanel from './components/AdminPanel';
 
 import {
@@ -298,6 +299,9 @@ export default function App() {
 
       {/* Logs View (hidden, only accessible via /logs route) */}
       {isLogsPage && <LogsViewer />}
+
+      {/* Admin Blacklist View (hidden, only accessible via /admin route) */}
+      {isAdminPage && <AdminBlacklist />}
 
       {/* Admin View (hidden, only accessible via /admin route) */}
       {isAdminPage && <AdminPanel />}
