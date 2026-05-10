@@ -29,6 +29,12 @@ async function initDb() {
         error_message TEXT,
         created_at TIMESTAMP DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS blacklisted_users (
+        username VARCHAR(255) PRIMARY KEY,
+        reason TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
       
       CREATE INDEX IF NOT EXISTS idx_username ON request_logs(username);
       CREATE INDEX IF NOT EXISTS idx_created_at ON request_logs(created_at);
@@ -57,6 +63,66 @@ async function logRequest(data) {
     // Log to console but don't crash if DB is unavailable
     console.warn('Failed to log request:', err.message);
   }
+}
+
+function normalizeUsername(username) {
+  return String(username || '')
+    .replace(/^u\//i, '')
+    .trim()
+    .toLowerCase();
+}
+
+async function isBlacklisted(username) {
+  const clean = normalizeUsername(username);
+  if (!clean) return false;
+
+  try {
+    const result = await pool.query(
+      'SELECT username FROM blacklisted_users WHERE username = $1 LIMIT 1',
+      [clean]
+    );
+    return result.rowCount > 0;
+  } catch (err) {
+    console.warn('Blacklist check failed:', err.message);
+    return false;
+  }
+}
+
+async function addBlacklistedUser(username, reason = '') {
+  const clean = normalizeUsername(username);
+  if (!clean) throw new Error('Username is required');
+
+  await pool.query(
+    `INSERT INTO blacklisted_users (username, reason, created_at)
+     VALUES ($1, $2, NOW())
+     ON CONFLICT (username)
+     DO UPDATE SET reason = EXCLUDED.reason`,
+    [clean, reason]
+  );
+
+  return { username: clean, reason };
+}
+
+async function removeBlacklistedUser(username) {
+  const clean = normalizeUsername(username);
+  if (!clean) throw new Error('Username is required');
+
+  const result = await pool.query(
+    'DELETE FROM blacklisted_users WHERE username = $1 RETURNING username, reason, created_at',
+    [clean]
+  );
+  return result.rows[0] || null;
+}
+
+async function getBlacklistedUsers(limit = 500) {
+  const result = await pool.query(
+    `SELECT username, reason, created_at
+     FROM blacklisted_users
+     ORDER BY created_at DESC
+     LIMIT $1`,
+    [Math.min(Math.max(parseInt(limit) || 500, 1), 1000)]
+  );
+  return result.rows;
 }
 
 /**
@@ -135,4 +201,15 @@ async function getRecentLogs(limit = 100) {
   }
 }
 
-module.exports = { initDb, logRequest, getMetrics, getRecentLogs, pool };
+module.exports = {
+  initDb,
+  logRequest,
+  getMetrics,
+  getRecentLogs,
+  isBlacklisted,
+  addBlacklistedUser,
+  removeBlacklistedUser,
+  getBlacklistedUsers,
+  normalizeUsername,
+  pool,
+};

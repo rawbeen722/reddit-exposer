@@ -4,7 +4,16 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
 const redditRoutes = require('./routes/reddit');
-const { initDb, logRequest, getMetrics, getRecentLogs } = require('./services/db');
+const {
+    initDb,
+    logRequest,
+    getMetrics,
+    getRecentLogs,
+    isBlacklisted,
+    addBlacklistedUser,
+    removeBlacklistedUser,
+    getBlacklistedUsers,
+} = require('./services/db');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -32,19 +41,19 @@ app.use((req, res, next) => {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
     const userAgent = req.headers['user-agent'] || 'unknown';
 
-    // skip logging for health checks, /api, /logs/ /api/admin/logs, and /assets/*
-    if (req.path.startsWith('/api/healthz') || req.path === '/api' || req.path.startsWith('/logs') || req.path.startsWith('/api/admin/logs') || req.path.startsWith('/assets/')) {
+    // skip logging for non-user endpoints such as health, assets, logs pages, and admin APIs
+    if (req.path.startsWith('/api/healthz') || req.path.startsWith('/assets/') || req.path.startsWith('/logs') || req.path.startsWith('/admin')) {
         return next();
     }
+
+    const userMatch = req.path.match(/\/user\/([^\/]+)/);
+    if (!userMatch) return next();
+
+    const username = decodeURIComponent(userMatch[1]).replace(/^u\//i, '').trim();
     
     // Capture response status and error
     res.on('finish', () => {
         const responseTimeMs = Date.now() - startTime;
-        
-        // Extract username if it's a user endpoint
-        let username = null;
-        const userMatch = req.path.match(/\/user\/([^\/]+)/);
-        if (userMatch) username = decodeURIComponent(userMatch[1]);
         
         // Log to database
         logRequest({
@@ -60,6 +69,25 @@ app.use((req, res, next) => {
     });
     
     next();
+});
+
+// Block blacklisted usernames from user-facing API endpoints
+app.use('/api', async (req, res, next) => {
+    const userMatch = req.path.match(/^\/user\/([^\/]+)/);
+    if (!userMatch) return next();
+
+    const username = decodeURIComponent(userMatch[1]).replace(/^u\//i, '').trim();
+    if (!username) return next();
+
+    try {
+        if (await isBlacklisted(username)) {
+            return res.status(403).json({ error: 'Access denied. You are not allowed to view this user.' });
+        }
+        return next();
+    } catch (err) {
+        console.error('Blacklist check failed:', err.message);
+        return next();
+    }
 });
 
 app.use('/api', redditRoutes);
@@ -79,12 +107,12 @@ if (process.env.SERVE_STATIC === 'true' || fs.existsSync(clientDist)) {
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 // Token verification middleware for admin endpoints
-function verifyLogViewerToken(req, res, next) {
-    const token = req.headers['x-log-token'] || req.query.token || req.body.token;
-    const expectedToken = process.env.LOG_VIEWER_TOKEN;
+function verifyAccessToken(req, res, next) {
+    const token = req.headers['x-access-token'] || req.headers['x-log-token'] || req.query.token || req.body.token;
+    const expectedToken = process.env.ACCESS_TOKEN || process.env.LOG_VIEWER_TOKEN;
     
     if (!expectedToken) {
-        return res.status(503).json({ error: 'Log viewer not configured' });
+        return res.status(503).json({ error: 'Access token not configured' });
     }
     
     if (!token || token !== expectedToken) {
@@ -102,10 +130,40 @@ app.get('/api/metrics', async (req, res) => {
 });
 
 // Admin endpoint — view recent logs (protected by token)
-app.get('/api/admin/logs', verifyLogViewerToken, async (req, res) => {
+app.get('/api/admin/logs', verifyAccessToken, async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit) || 100, 1000);
     const logs = await getRecentLogs(limit);
     res.json({ count: logs.length, logs, fetched_at: new Date().toISOString() });
+});
+
+// Admin endpoint — list blacklisted users
+app.get('/api/admin/blacklist', verifyAccessToken, async (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit) || 500, 1000);
+    const users = await getBlacklistedUsers(limit);
+    res.json({ count: users.length, users });
+});
+
+// Admin endpoint — add a username to blacklist
+app.post('/api/admin/blacklist', verifyAccessToken, async (req, res) => {
+    const username = req.body?.username;
+    const reason = req.body?.reason || '';
+
+    if (!username || !String(username).trim()) {
+        return res.status(400).json({ error: 'Username is required' });
+    }
+
+    const user = await addBlacklistedUser(username, reason);
+    res.status(201).json({ message: 'User added to blacklist', user });
+});
+
+// Admin endpoint — remove a username from blacklist
+app.delete('/api/admin/blacklist/:username', verifyAccessToken, async (req, res) => {
+    const removed = await removeBlacklistedUser(req.params.username);
+    if (!removed) {
+        return res.status(404).json({ error: 'User not found in blacklist' });
+    }
+
+    res.json({ message: 'User removed from blacklist', user: removed });
 });
 
 app.listen(PORT, () => {

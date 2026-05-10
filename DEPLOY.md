@@ -25,16 +25,17 @@ Database (PostgreSQL for logging & metrics)
 - Once created, Render provides a `DATABASE_URL` connection string.
 - In your Render Web Service: go to Environment → Add environment variable:
 	- `DATABASE_URL` = paste the PostgreSQL connection string from Render
-	- `LOG_VIEWER_TOKEN` = set a strong random token (e.g., generate via `openssl rand -base64 24`)
+	- `ACCESS_TOKEN` = set a strong random token (e.g., generate via `openssl rand -base64 24`)
 - Restart the service; the app will auto-create the logs table.
 - View metrics: `GET https://your-app.onrender.com/api/metrics?days=7`
-- View logs: open the frontend and click the "📊 Logs" button in the header, then enter your `LOG_VIEWER_TOKEN`
+- View logs: open `https://your-app.onrender.com/logs` and enter your `ACCESS_TOKEN`
+- Manage blacklists: open `https://your-app.onrender.com/admin` and enter your `ACCESS_TOKEN`
 
 Notes:
 - Free tier PostgreSQL expires after 90 days of inactivity; keep it active by searching users regularly.
 - Logs track: username searched, endpoint, status code, IP, user agent, response time, errors.
 - Metrics include: top searched users, hourly request counts, error summary.
-- The logs viewer is accessible from the app header (📊 Logs button). Share the `LOG_VIEWER_TOKEN` with team members who need access.
+- The logs viewer and blacklist admin are hidden routes; share the `ACCESS_TOKEN` only with admins.
 
 Single-service alternative (optional)
 - If you prefer to deploy one service (server serves the built frontend), the server can serve `client/dist` automatically when the `client/dist` folder exists or when you set `SERVE_STATIC=true`.

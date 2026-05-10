@@ -29,7 +29,7 @@ export default function LogsViewer() {
         `${LOGS_ENDPOINT}?limit=${limit}&_=${Date.now()}`,
         {
           headers: {
-            'x-log-token': tokenToUse,
+            'x-access-token': tokenToUse,
             'cache-control': 'no-cache',
           },
         }
@@ -310,7 +310,7 @@ export default function LogsViewer() {
               <input
                 type="password"
                 className="auth-input"
-                placeholder="Enter LOG_VIEWER_TOKEN..."
+                placeholder="Enter ACCESS_TOKEN..."
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 autoFocus
@@ -321,7 +321,7 @@ export default function LogsViewer() {
             </form>
             {error && <div className="logs-error">{error}</div>}
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted, #999)', marginBottom: 0 }}>
-              Token is required to view logs. Ask your administrator for the LOG_VIEWER_TOKEN.
+              Token is required to view logs. Ask your administrator for the ACCESS_TOKEN.
             </p>
           </div>
         ) : (
@@ -359,6 +359,7 @@ export default function LogsViewer() {
                       <th>Method</th>
                       <th>Status</th>
                       <th>IP</th>
+                      <th>User Agent</th>
                       <th>Time (ms)</th>
                     </tr>
                   </thead>
@@ -371,6 +372,7 @@ export default function LogsViewer() {
                         <td>{log.method}</td>
                         <td className={`log-status-${log.status_code}`}>{log.status_code}</td>
                         <td>{log.requester_ip}</td>
+                        <td style={{ maxWidth: 320, wordBreak: 'break-word' }}>{log.user_agent || '—'}</td>
                         <td>{log.response_time_ms}</td>
                       </tr>
                     ))}

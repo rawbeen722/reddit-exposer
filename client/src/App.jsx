@@ -11,6 +11,7 @@ import UserInteractions from './components/UserInteractions';
 import FlairBadges from './components/FlairBadges';
 import InsightsSummary from './components/InsightsSummary';
 import LogsViewer from './components/LogsViewer';
+import AdminPanel from './components/AdminPanel';
 
 import {
   fetchUserProfile,
@@ -256,6 +257,7 @@ export default function App() {
   const s = states;
   const isSearched = !!username;
   const isLogsPage = window.location.pathname === '/logs';
+  const isAdminPage = window.location.pathname === '/admin';
 
   const refreshCurrentSearch = () => {
     if (!username) return;
@@ -297,8 +299,11 @@ export default function App() {
       {/* Logs View (hidden, only accessible via /logs route) */}
       {isLogsPage && <LogsViewer />}
 
+      {/* Admin View (hidden, only accessible via /admin route) */}
+      {isAdminPage && <AdminPanel />}
+
       {/* Search View */}
-      {!isLogsPage && (
+      {!isLogsPage && !isAdminPage && (
         <>
           {/* Hero (shown only before search) */}
           {!isSearched && (
