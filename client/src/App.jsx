@@ -69,6 +69,7 @@ export default function App() {
   });
 
   const [globalError, setGlobalError] = useState(null);
+  const [isBlacklisted, setIsBlacklisted] = useState(false);
   const [toast, setToast] = useState(null);
   const abortRef = useRef(null);
   const initialLoadRef = useRef(false);
@@ -78,6 +79,7 @@ export default function App() {
     setActiveTab('Overview');
     setSubFilter('');
     setGlobalError(null);
+    setIsBlacklisted(false);
     setStates({
       profile: { data: null, loading: false, error: null },
       posts: { data: [], loading: false, error: null, hasMore: false },
@@ -141,7 +143,13 @@ export default function App() {
       } catch (err) {
         const msg = err?.response?.data?.error || err.message || 'Failed to fetch';
         setSection(key, { loading: false, error: msg });
-        if (key === 'profile') showToast(msg);
+        if (key === 'profile') {
+          // Check if user is blacklisted
+          if (msg.toLowerCase().includes('access denied') || err?.response?.status === 403) {
+            setIsBlacklisted(true);
+          }
+          showToast(msg);
+        }
       }
     }
 
@@ -336,8 +344,30 @@ export default function App() {
       {/* Dashboard */}
       {isSearched && (
         <main className="dashboard">
-          {/* User header strip */}
-          <div className="user-strip animate-fade-in">
+          {/* Blacklist Error Message */}
+          {isBlacklisted && (
+            <div className="blacklist-error-container">
+              <div className="blacklist-error-message">
+                <div className="blacklist-error-icon">⛔</div>
+                <div className="blacklist-error-content">
+                  <h2>Access Restricted</h2>
+                  <p>The system administrator has restricted access to this user's profile. You are not permitted to view details for <strong>u/{username}</strong>.</p>
+                  <button className="btn-search-again" onClick={() => {
+                    goHome();
+                    setTimeout(() => window.scrollTo({ top: 0 }), 0);
+                  }}>
+                    ← Search Another User
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Dashboard Content (shown only if not blacklisted) */}
+          {!isBlacklisted && (
+            <>
+              {/* User header strip */}
+              <div className="user-strip animate-fade-in">
             <div className="user-strip-main">
               <span className="mono user-strip-name">
                 🔍 Exposing: <span className="text-accent">u/{username}</span>
@@ -438,6 +468,8 @@ export default function App() {
               subreddits={s.subreddits.data?.data || []}
             />
           )}
+            </>
+          )}
         </main>
       )}
       </>
@@ -515,6 +547,77 @@ export default function App() {
 
         /* Dashboard */
         .dashboard { padding: 24px 32px; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+        /* Blacklist Error Message */
+        .blacklist-error-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 400px;
+          padding: 40px 20px;
+        }
+
+        .blacklist-error-message {
+          background: linear-gradient(135deg, rgba(50,30,30,0.8) 0%, rgba(30,20,20,0.9) 100%);
+          border: 2px solid var(--accent-red, #ff4444);
+          border-radius: 16px;
+          padding: 40px;
+          max-width: 500px;
+          text-align: center;
+          backdrop-filter: blur(20px);
+          box-shadow: 0 8px 32px rgba(255, 68, 68, 0.15);
+        }
+
+        .blacklist-error-icon {
+          font-size: 3rem;
+          margin-bottom: 16px;
+          animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.6; }
+        }
+
+        .blacklist-error-content h2 {
+          font-size: 1.8rem;
+          font-weight: 700;
+          color: var(--accent-red, #ff6b6b);
+          margin-bottom: 12px;
+          letter-spacing: 1px;
+        }
+
+        .blacklist-error-content p {
+          font-size: 1rem;
+          color: var(--text-secondary, #b0b0b0);
+          line-height: 1.6;
+          margin-bottom: 24px;
+        }
+
+        .blacklist-error-content strong {
+          color: var(--accent-cyan, #00d4ff);
+          font-weight: 600;
+        }
+
+        .btn-search-again {
+          background: var(--accent-cyan, #00d4ff);
+          color: #000;
+          border: none;
+          padding: 12px 28px;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.95rem;
+          cursor: pointer;
+          letter-spacing: 1px;
+          transition: all 0.2s ease;
+        }
+
+        .btn-search-again:hover {
+          opacity: 0.9;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 16px rgba(0, 212, 255, 0.3);
+        }
+
         .user-strip {
           display: flex; align-items: center; justify-content: space-between;
           margin-bottom: 16px; padding: 10px 16px;
