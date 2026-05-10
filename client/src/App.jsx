@@ -479,9 +479,10 @@ export default function App() {
           position: sticky; top: 0; z-index: 50;
           display: flex; align-items: center; gap: 16px;
           padding: 14px 32px;
-          background: rgba(8,8,15,0.85);
-          backdrop-filter: blur(20px);
-          border-bottom: 1px solid var(--border-subtle);
+          background: linear-gradient(180deg, rgba(8,12,24,0.92) 0%, rgba(8,12,24,0.78) 100%);
+          backdrop-filter: blur(22px);
+          border-bottom: 1px solid rgba(132, 188, 255, 0.2);
+          box-shadow: 0 10px 24px rgba(5, 8, 18, 0.35);
         }
         .header-brand { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
         .header-brand-btn {
@@ -498,8 +499,8 @@ export default function App() {
           outline-offset: 6px;
           border-radius: 8px;
         }
-        .brand-icon { font-size: 1.3rem; }
-        .brand-name { font-size: 1.1rem; letter-spacing: 1px; }
+        .brand-icon { font-size: 1.3rem; filter: drop-shadow(0 0 10px rgba(33, 212, 253, 0.28)); }
+        .brand-name { font-size: 1.1rem; letter-spacing: 1px; font-weight: 800; }
         .header-search { flex: 1; max-width: 500px; }
         .header-actions { margin-left: auto; flex-shrink: 0; }
 
@@ -522,18 +523,29 @@ export default function App() {
           max-width: 720px;
         }
         .hero-badge {
-          background: var(--accent-cyan-dim); color: var(--accent-cyan);
-          border: 1px solid rgba(0,212,255,0.25); border-radius: 20px;
-          padding: 5px 16px; font-size: 0.8rem; letter-spacing: 1px;
+          background: linear-gradient(180deg, rgba(33,212,253,0.14) 0%, rgba(33,212,253,0.08) 100%);
+          color: #8ae8ff;
+          border: 1px solid rgba(116, 222, 255, 0.32);
+          border-radius: 999px;
+          padding: 6px 16px;
+          font-size: 0.78rem;
+          letter-spacing: 1.2px;
+          text-transform: uppercase;
           animation: fadeIn 0.5s ease;
         }
         .hero-title {
-          font-size: clamp(2.8rem, 7vw, 5rem); font-weight: 700;
-          line-height: 1.1; letter-spacing: -1px;
+          font-size: clamp(2.7rem, 7vw, 5.2rem);
+          font-weight: 800;
+          line-height: 1.04;
+          letter-spacing: -1.4px;
+          text-wrap: balance;
           animation: fadeUp 0.5s ease 0.1s both;
         }
         .hero-subtitle {
-          font-size: 1.1rem; color: var(--text-secondary); line-height: 1.7;
+          font-size: 1.02rem;
+          color: #a9b9d9;
+          line-height: 1.72;
+          max-width: 650px;
           animation: fadeUp 0.5s ease 0.2s both;
         }
         .hero-hint {
@@ -542,7 +554,13 @@ export default function App() {
         }
 
         /* Dashboard */
-        .dashboard { padding: 24px 32px; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; }
+        .dashboard {
+          padding: 24px 32px;
+          flex: 1;
+          max-width: 1440px;
+          margin: 0 auto;
+          width: 100%;
+        }
 
         /* Access Restricted Error Message */
         .restrictions-error-container {
@@ -617,7 +635,9 @@ export default function App() {
         .user-strip {
           display: flex; align-items: center; justify-content: space-between;
           margin-bottom: 16px; padding: 10px 16px;
-          background: var(--accent-cyan-dim); border: 1px solid var(--border-accent);
+          background: linear-gradient(90deg, rgba(19, 36, 67, 0.78) 0%, rgba(16, 31, 56, 0.88) 100%);
+          border: 1px solid rgba(98, 162, 255, 0.28);
+          box-shadow: inset 0 1px 0 rgba(145, 204, 255, 0.12);
           border-radius: var(--radius-md);
           flex-wrap: wrap; gap: 8px;
         }

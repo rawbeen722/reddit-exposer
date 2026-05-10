@@ -1,40 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
 /* ===================================
-   REDDIT EXPOSER — DESIGN SYSTEM
-   Dark Hacker / Investigator Theme
-   =================================== */
+  REDDIT EXPOSER — DESIGN SYSTEM
+  Neo Noir Editorial Theme
+  =================================== */
 
 :root {
-  --bg-primary: #08080f;
-  --bg-secondary: #0f0f1a;
-  --bg-card: #13131f;
-  --bg-card-hover: #1a1a2e;
-  --bg-glass: rgba(19, 19, 31, 0.7);
+  --bg-primary: #070b15;
+  --bg-secondary: #0d1426;
+  --bg-card: #111a31;
+  --bg-card-hover: #152042;
+  --bg-glass: rgba(12, 19, 37, 0.72);
 
-  --accent-cyan: #00d4ff;
-  --accent-cyan-dim: rgba(0, 212, 255, 0.15);
-  --accent-cyan-glow: rgba(0, 212, 255, 0.4);
-  --accent-green: #00ff88;
-  --accent-green-dim: rgba(0, 255, 136, 0.12);
-  --accent-red: #ff3366;
-  --accent-red-dim: rgba(255, 51, 102, 0.15);
-  --accent-purple: #9d4edd;
-  --accent-orange: #ff9f1c;
-  --accent-yellow: #ffd60a;
+  --accent-cyan: #21d4fd;
+  --accent-cyan-dim: rgba(33, 212, 253, 0.14);
+  --accent-cyan-glow: rgba(33, 212, 253, 0.45);
+  --accent-green: #35f6a1;
+  --accent-green-dim: rgba(53, 246, 161, 0.12);
+  --accent-red: #ff5d73;
+  --accent-red-dim: rgba(255, 93, 115, 0.14);
+  --accent-purple: #7a8cff;
+  --accent-orange: #ffb347;
+  --accent-yellow: #ffe07a;
 
-  --text-primary: #e8e8f0;
-  --text-secondary: #8892b0;
-  --text-muted: #4a5568;
+  --text-primary: #edf4ff;
+  --text-secondary: #9cb0d5;
+  --text-muted: #62708d;
   --text-accent: var(--accent-cyan);
 
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-accent: rgba(0, 212, 255, 0.3);
+  --border-subtle: rgba(173, 198, 255, 0.14);
+  --border-accent: rgba(33, 212, 253, 0.35);
 
-  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
-  --font-ui: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'JetBrains Mono', 'Courier New', monospace;
+  --font-ui: 'Manrope', 'Avenir Next', 'Segoe UI', sans-serif;
 
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 20px var(--accent-cyan-glow);
-  --shadow-glow-sm: 0 0 10px var(--accent-cyan-glow);
+  --shadow-card: 0 14px 44px rgba(2, 7, 18, 0.48);
+  --shadow-glow: 0 0 28px var(--accent-cyan-glow);
+  --shadow-glow-sm: 0 0 12px var(--accent-cyan-glow);
 
   --radius-sm: 6px;
   --radius-md: 12px;
@@ -56,7 +58,10 @@ html {
 
 body {
   font-family: var(--font-ui);
-  background-color: var(--bg-primary);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(49, 97, 255, 0.17), transparent 35%),
+    radial-gradient(circle at 85% 18%, rgba(33, 212, 253, 0.12), transparent 36%),
+    linear-gradient(180deg, #060a12 0%, #081024 52%, #090d1b 100%);
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
@@ -69,9 +74,18 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
+    linear-gradient(rgba(33, 212, 253, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(33, 212, 253, 0.035) 1px, transparent 1px);
+  background-size: 52px 52px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 40%, rgba(2, 5, 14, 0.62) 100%);
   pointer-events: none;
   z-index: 0;
 }
@@ -105,13 +119,14 @@ button {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-cyan), #0099cc);
-  color: #000;
+  background: linear-gradient(135deg, #3be8ff 0%, #29baff 50%, #56c3ff 100%);
+  color: #04101f;
   font-weight: 700;
   padding: 12px 28px;
   border-radius: var(--radius-md);
   font-size: 0.95rem;
   letter-spacing: 0.5px;
+  border: 1px solid rgba(130, 235, 255, 0.46);
 }
 
 .btn-primary:hover {
@@ -149,6 +164,7 @@ button {
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-card);
 }
 
 .card::before {
